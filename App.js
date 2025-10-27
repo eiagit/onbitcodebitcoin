@@ -12,30 +12,24 @@ function zeroEsqueda(props) {
 };
 function url(props) {
     var dia = zeroEsqueda(props)
+    // ACESSE O SITE DA API E CLOQUE A CHAVE NO LUGAR INDICADO
     // return `https://data-api.coindesk.com/index/cc/v1/historical/days?market=cadli&instrument=BTC-USD&limit=${dia}&aggregate=1&fill=true&apply_mapping=true&response_format=JSON&api_key=%20%20%20%20const%20apikey=COLOQUE AQUI A SUA CHAVE DA APP https://developers.coindesk.com/documentation/data-api/introduction`
-    return `https://data-api.coindesk.com/index/cc/v1/historical/days?market=cadli&instrument=BTC-USD&limit=${dia}&aggregate=1&fill=true&apply_mapping=true&response_format=JSON&api_key=%20%20%20%20const%20apikey=%20%2224601e3365f9dbdb0a7ae497c46acde45d41e76b299e87463210a1fff03e67f6%22`
+    
 };
 
 async function dBC(url) {
-    var dataAtual = new Date()
-     console.log('antes do erro')   
-    let dados = await fetch((url)).json().Data
-  //  let apiResponse = await response.json()
- //   let selectData = apiResponse.Data
-    console.log('passou do errro')
-     console.log(await dados)  
-    return ((Object.entries(await dados).map(([id, data]) => {
+    let response = await fetch(url)
+    let apiResponse = await response.json()
+    let selectData = await apiResponse.Data
+    return ((Object.entries(await selectData).map(([id, data]) => {
         return { "id": id, "data": (new Date(data.TIMESTAMP * 1000)).toLocaleDateString("pt-BR"), "valor": data.LAST_MESSAGE_VALUE }
     })))
 };
 
 async function dBG(url) {
-     
-    var dataAtual = new Date()
     let response = await fetch((url))
     let apiResponse = await response.json()
-    let selectData = apiResponse.Data
-     
+    let selectData = await apiResponse.Data
     return ((Object.entries(selectData).map(([id, data]) => {
         return data.LAST_MESSAGE_VALUE
     })))
@@ -57,12 +51,13 @@ export default function App() {
         dBC(url(days)).then((data) => {
             setCoinList(data)
         })
+
         dBG(url(days)).then((resposta) => {
             setCoinsGraphicList(resposta)
+            setAtualValue(coinsGraphicList.pop())            
         })
         if (updateData) setUpdateData(false)
-        setAtualValue(coinsGraphicList.pop())
-    }, [])
+    }, [days])
 
     return (
         <SafeAreaProvider style={styles.container}>
